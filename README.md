@@ -219,3 +219,20 @@ Salve seu código em um versionador de código (GitHub, GitLab, Bitbucket) e nos
 =======
 # Carrinhos-de-Compra
 Desafio Técnico Backend
+
+
+
+Rode a seed
+
+```
+bundle exec bin/rails db:seed
+```
+
+Rodar os testes`
+>Como o projeto não seta automaticamente o banco de teste, rode:
+
+```
+RAILS_ENV=test bundle exec rspec
+
+RAILS_ENV=test bundle exec rspec spec/requests/carts_spec.rb
+```
