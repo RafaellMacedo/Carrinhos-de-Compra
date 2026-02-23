@@ -20,6 +20,17 @@ class Cart < ApplicationRecord
     update_total_price
   end
 
+  def product_exists?(product_id)
+    Product.exists?(product_id)
+  end
+
+  def remove_product(product_id)
+    item = cart_items.find_by(product_id: product_id)
+    return false unless item
+    item.destroy
+    update_total_price
+  end
+
   def update_total_price
     self.total_price = cart_items.sum('price * quantity')
     save
