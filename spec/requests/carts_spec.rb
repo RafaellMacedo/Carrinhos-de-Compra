@@ -157,4 +157,116 @@ RSpec.describe "Controler Carts", type: :request do
       expect(response_json["total_price"]).to eq(total_price_expected)
     end
   end
+
+  describe "PATCH /cart/:product_id" do
+    let!(:product) { Product.create!(name: "TV Samsung 55", unit_price: 1300.0, quantity: 10) }
+    let!(:product2) { Product.create!(name: "Celular Moto X", unit_price: 800.0, quantity: 5) }
+
+    it "does not remove product when cart not exist" do
+      patch "/cart/1"
+
+      expect(response).to have_http_status(:not_found)
+    end
+    
+    it "Does not remove the product when the product_id is not found" do
+      post "/cart",
+           params: {
+             product_id: product.id,
+             quantity: 1
+           },
+           as: :json
+
+      expect(response).to have_http_status(:ok)
+
+      patch "/cart/2"
+
+      expect(response).to have_http_status(:not_found)
+    end
+    
+    it "Does not remove the product when the product_id is not more exist" do
+      post "/cart",
+           params: {
+             product_id: product.id,
+             quantity: 1
+           },
+           as: :json
+
+      expect(response).to have_http_status(:ok)
+
+      patch "/cart/" + product.id.to_s
+
+      expect(response).to have_http_status(:ok)
+
+      patch "/cart/" + product.id.to_s
+
+      expect(response).to have_http_status(:not_found)
+    end
+    
+    it "Does remove the product when the product_id exist in cart" do
+      post "/cart",
+           params: {
+             product_id: product.id,
+             quantity: 1
+           },
+           as: :json
+
+      expect(response).to have_http_status(:ok)
+
+      patch "/cart/" + product.id.to_s
+
+      expect(response).to have_http_status(:ok)
+    end
+    
+    it "returns the updated cart after removing a product" do
+      post "/cart",
+           params: {
+             product_id: product.id,
+             quantity: 1
+           },
+           as: :json
+
+      expect(response).to have_http_status(:ok)
+
+      post "/cart",
+           params: {
+             product_id: product2.id,
+             quantity: 1
+           },
+           as: :json
+
+      expect(response).to have_http_status(:ok)
+
+      patch "/cart/" + product.id.to_s
+
+      expect(response).to have_http_status(:ok)
+      
+      response_json = JSON.parse(response.body)
+
+      name_expected = product2.name
+      total_price_expected = 800.0
+
+      expect(response_json["products"].length).to eq(1)
+      expect(response_json["products"].first['name']).to eq(name_expected)
+      expect(response_json["total_price"]).to eq(total_price_expected)
+    end
+    
+    it "returns the message last product removed in cart after removing a product" do
+      post "/cart",
+           params: {
+             product_id: product.id,
+             quantity: 1
+           },
+           as: :json
+
+      expect(response).to have_http_status(:ok)
+
+      patch "/cart/" + product.id.to_s
+
+      expect(response).to have_http_status(:ok)
+      
+      response_json = JSON.parse(response.body)
+
+      expect(response_json["message"]).to eq("Carrinho agora esta vazio")
+    end
+  end
 end

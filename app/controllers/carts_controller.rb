@@ -16,7 +16,29 @@ class CartsController < ApplicationController
       quantity: cart_params[:quantity]
     )
 
-    return add_cart_product_not_found unless result
+    return product_not_found unless result
+
+    render json: CartSerializer.new(cart), status: :ok
+  end
+
+  def remove_item
+    cart = current_cart
+    return cart_not_exist unless cart
+
+    product_id = cart_params[:product_id]
+    return missing_product_id unless product_id
+
+    unless cart.product_exists?(product_id)
+      return product_not_found
+    end
+
+    unless cart.remove_product(product_id)
+      return remove_product_not_in_cart
+    end
+
+    if cart.cart_items.empty?
+      return last_product_removed
+    end
 
     render json: CartSerializer.new(cart), status: :ok
   end
