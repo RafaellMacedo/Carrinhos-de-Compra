@@ -35,9 +35,11 @@ services:
 
   sidekiq:
     build: .
-    command: bundle exec sidekiq
     depends_on:
       - redis
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    command: bundle exec sidekiq
 
 volumes:
   pg_data:
