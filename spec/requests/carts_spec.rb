@@ -36,6 +36,17 @@ RSpec.describe "Controler Carts", type: :request do
            as: :json
 
       expect(response).to have_http_status(:ok)
+
+      response_json = JSON.parse(response.body)
+
+      quantity_expected = 2
+      total_price_expected = 2600.0
+
+      expect(response_json["products"].length).to eq(1)
+      expect(response_json["products"].first['name']).to eq(product.name)
+      expect(response_json["products"].first['quantity']).to eq(quantity_expected)
+      expect(response_json["products"].first['unit_price']).to eq(product.unit_price)
+      expect(response_json["total_price"]).to eq(total_price_expected)
     end
 
     it "does not save new product in cart when product not found" do
@@ -94,9 +105,55 @@ RSpec.describe "Controler Carts", type: :request do
 
       response_json = JSON.parse(response.body)
 
+      total_price_expected = 2600.0
+
+      expect(response_json["products"].length).to eq(1)
+      expect(response_json["total_price"]).to eq(total_price_expected)
+    end
+  end
+
+  describe "PUT /cart/add_item" do
+    let!(:product) { Product.create!(name: "TV Samsung 55", unit_price: 1300.0, quantity: 10) }
+
+    it "does increase item quantity when item exist in cart" do
+      post "/cart",
+           params: {
+             product_id: product.id,
+             quantity: 1
+           },
+           as: :json
+
+      expect(response).to have_http_status(:ok)
+
+      response_json = JSON.parse(response.body)
+
+      quantity_expected = 1
+      total_price_expected = 1300.0
+
+      expect(response_json["products"].length).to eq(1)
+      expect(response_json["products"].first['quantity']).to eq(quantity_expected)
+      expect(response_json["total_price"]).to eq(total_price_expected)
+
+      put "/cart/add_item",
+           params: {
+             product_id: product.id,
+             quantity: 2
+           },
+           as: :json
+
+      expect(response).to have_http_status(:ok)
+
+      get "/cart"
+
+      expect(response).to have_http_status(:ok)
+
+      response_json = JSON.parse(response.body)
+
+      quantity_expected = 3
       total_price_expected = 3900.0
 
       expect(response_json["products"].length).to eq(1)
+      expect(response_json["products"].first['quantity']).to eq(quantity_expected)
       expect(response_json["total_price"]).to eq(total_price_expected)
     end
   end

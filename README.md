@@ -232,6 +232,8 @@ Rodar os testes`
 >Como o projeto não seta automaticamente o banco de teste, rode:
 
 ```
+RAILS_ENV=test bundle exec bin/rails db:create
+
 RAILS_ENV=test bundle exec rspec
 
 RAILS_ENV=test bundle exec rspec spec/requests/carts_spec.rb
