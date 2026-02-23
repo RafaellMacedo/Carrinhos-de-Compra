@@ -27,7 +27,7 @@ RSpec.describe "Controler Carts", type: :request do
   describe "POST /cart" do
     let!(:product) { Product.create!(name: "TV Samsung 55", unit_price: 1300.0, quantity: 10) }
 
-    it "Store New Product in Cart" do
+    it "store new product in cart" do
       post "/cart",
            params: {
              product_id: product.id,
@@ -38,7 +38,7 @@ RSpec.describe "Controler Carts", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it "Not save new product in Cart when Product Not Found" do
+    it "does not save new product in cart when product not found" do
       post "/cart",
            params: {
              product_id: product.id+1,
@@ -67,6 +67,37 @@ RSpec.describe "Controler Carts", type: :request do
            as: :json
 
       expect(response).to have_http_status(:bad_request)
+    end
+  end
+
+  describe "GET /cart" do
+    it "does not found cart when session cart not exist" do
+      get "/cart"
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    let!(:product) { Product.create!(name: "TV Samsung 55", unit_price: 1300.0, quantity: 10) }
+    it "does show all product in cart when session cart exist" do
+      post "/cart",
+           params: {
+             product_id: product.id,
+             quantity: 2
+           },
+           as: :json
+
+      expect(response).to have_http_status(:ok)
+
+      get "/cart"
+
+      expect(response).to have_http_status(:ok)
+
+      response_json = JSON.parse(response.body)
+
+      total_price_expected = 3900.0
+
+      expect(response_json["products"].length).to eq(1)
+      expect(response_json["total_price"]).to eq(total_price_expected)
     end
   end
 end

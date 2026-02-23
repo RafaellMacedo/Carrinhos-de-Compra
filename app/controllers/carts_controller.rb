@@ -1,5 +1,13 @@
 class CartsController < ApplicationController
 
+  def show
+    cart = take_current_cart
+
+    return cart_not_exist unless cart
+    
+    render json: CartSerializer.new(cart), status: :ok
+  end
+
   def add_product
     return add_cart_required_fields unless validate_request
 
@@ -56,4 +64,7 @@ class CartsController < ApplicationController
       return true
   end
   
+  def take_current_cart
+    return Cart.find_by(id: session[:cart_id]) if session[:cart_id]
+  end
 end

@@ -9,4 +9,8 @@ class ApplicationController < ActionController::API
     def add_cart_product_not_found
         render json: { error: "Produto não encontrado" }, status: :not_found
     end
+
+    def cart_not_exist
+        render json: { error: "Carrinho não existe" }, status: :not_found
+    end
 end
