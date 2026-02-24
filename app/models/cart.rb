@@ -2,6 +2,8 @@ class Cart < ApplicationRecord
   has_many :cart_items, dependent: :destroy
   has_many :products, through: :cart_items
 
+  validates :total_price,
+            numericality: { greater_than_or_equal_to: 0 }
   before_save :update_last_interaction, if: :items_changed?
 
   scope :active, -> { where(abandoned: false) }
@@ -45,6 +47,18 @@ class Cart < ApplicationRecord
   def update_total_price
     self.total_price = cart_items.sum('price * quantity')
     save
+  end
+
+  def mark_as_abandoned
+    update!(abandoned: true)
+  end
+
+  def remove_if_abandoned
+    return unless abandoned?
+    return unless last_interaction_at.present?
+    return unless last_interaction_at < 7.days.ago
+
+    destroy
   end
 
   private
