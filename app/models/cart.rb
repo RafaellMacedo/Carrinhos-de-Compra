@@ -49,6 +49,18 @@ class Cart < ApplicationRecord
     save
   end
 
+  def mark_as_abandoned
+    update!(abandoned: true)
+  end
+
+  def remove_if_abandoned
+    return unless abandoned?
+    return unless last_interaction_at.present?
+    return unless last_interaction_at < 7.days.ago
+
+    destroy
+  end
+
   private
   
   # TODO: lógica para marcar o carrinho como abandonado e remover se abandonado
