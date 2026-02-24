@@ -220,7 +220,24 @@ Salve seu código em um versionador de código (GitHub, GitLab, Bitbucket) e nos
 # Carrinhos-de-Compra
 Desafio Técnico Backend
 
+### Desenvolvimento da API
+O desenvolvimento foi feito por etapas, criando issues no repositório e trabalhando em branches específicas:
 
+| Issue                                           | Pull Request                                                          |
+| ----------------------------------------------- | --------------------------------------------------------------------- |
+| Criar projeto Ruby on Rails                     | [#1](https://github.com/RafaellMacedo/Carrinhos-de-Compra/issues/1)   |
+| 1. Registrar um produto no carrinho             | [#2](https://github.com/RafaellMacedo/Carrinhos-de-Compra/issues/2)   |
+| 2. Listar itens do carrinho atual               | [#5](https://github.com/RafaellMacedo/Carrinhos-de-Compra/issues/5)   |
+| 3. Alterar a quantidade de produtos no carrinho | [#7](https://github.com/RafaellMacedo/Carrinhos-de-Compra/issues/7)   |
+| 4. Remover um produto do carrinho               | [#8](https://github.com/RafaellMacedo/Carrinhos-de-Compra/issues/8)   |
+| 5. Excluir carrinhos abandonados                | [#9](https://github.com/RafaellMacedo/Carrinhos-de-Compra/issues/9)   |
+| Corrigir Testes já existente no projeto         | [#12](https://github.com/RafaellMacedo/Carrinhos-de-Compra/issues/12) |
+
+Acessar o sidekiq local
+
+```
+http://localhost:3000/sidekiq/
+```
 
 Rode a seed
 
