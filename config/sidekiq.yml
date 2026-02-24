@@ -1,14 +1,11 @@
 :concurrency: 3
-:timeout: 60
-:verbose: true
-:queues:
-  - critical
-  - default
-  - mailers
-  - active_storage_analysis
-  - active_storage_purge
 
-:schedule:
-  abandoned_carts:
-    cron: "0 * * * *" # a cada hora
-    class: "AbandonedCartsJob"
+:queues:
+  - default
+
+:scheduler:
+  :schedule:
+    abandoned_carts_job:
+      cron: "0 * * * *"
+      class: "AbandonedCartsJob"
+      queue: default
