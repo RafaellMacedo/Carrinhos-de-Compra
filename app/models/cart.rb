@@ -4,6 +4,10 @@ class Cart < ApplicationRecord
 
   validates :total_price,
             numericality: { greater_than_or_equal_to: 0 }
+  before_save :update_last_interaction, if: :items_changed?
+
+  scope :active, -> { where(abandoned: false) }
+  scope :abandoned, -> { where(abandoned: true) }
 
   def add_product(product_id:, quantity:)
     product = Product.find_by(id: product_id)
@@ -20,6 +24,8 @@ class Cart < ApplicationRecord
     item.price = product.unit_price
     item.save!
 
+    update_last_interaction
+
     update_total_price
   end
 
@@ -30,7 +36,11 @@ class Cart < ApplicationRecord
   def remove_product(product_id)
     item = cart_items.find_by(product_id: product_id)
     return false unless item
+
     item.destroy
+    
+    update_last_interaction
+    
     update_total_price
   end
 
@@ -39,5 +49,14 @@ class Cart < ApplicationRecord
     save
   end
 
+  private
+  
   # TODO: lógica para marcar o carrinho como abandonado e remover se abandonado
+  def update_last_interaction
+    self.last_interaction_at = Time.current
+  end
+
+  def items_changed?
+    cart_items.any?(&:changed?) || cart_items.any?(&:new_record?) || cart_items.any?(&:destroyed?)
+  end
 end
