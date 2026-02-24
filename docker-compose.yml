@@ -1,9 +1,9 @@
 services:
   web:
     build: .
+    working_dir: /app
     container_name: rails_app
     volumes:
-      - .:/rails
       - .:/app
       - bundle_data:/usr/local/bundle
     ports:
@@ -14,6 +14,7 @@ services:
       DATABASE_HOST: db
       DATABASE_USER: postgres
       DATABASE_PASSWORD: postgres
+      REDIS_URL: redis://redis:6379/0
 
   db:
     image: postgres:16
@@ -30,14 +31,23 @@ services:
 
   redis:
     image: redis:7
+    container_name: redis
     ports:
       - "6379:6379"
 
   sidekiq:
     build: .
-    command: bundle exec sidekiq
+    working_dir: /app
+    command: bundle exec sidekiq -C config/sidekiq.yml
+    volumes:
+      - .:/app
+      - bundle_data:/usr/local/bundle
     depends_on:
       - redis
+      - db
+      - web
+    environment:
+      REDIS_URL: redis://redis:6379/0
 
 volumes:
   pg_data:

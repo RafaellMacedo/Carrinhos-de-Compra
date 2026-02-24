@@ -238,3 +238,21 @@ RAILS_ENV=test bundle exec rspec
 
 RAILS_ENV=test bundle exec rspec spec/requests/carts_spec.rb
 ```
+
+> Criando um job
+
+```
+bin/rails generate job AbandonedCarts
+```
+
+> Verificar Sidekiq esta rodando
+
+```
+bundle exec sidekiq
+```
+
+> Verifica processos do Sidekiq
+
+```
+ps aux | grep sidekiq
+```
