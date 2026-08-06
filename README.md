@@ -1,275 +1,231 @@
-# Desafio técnico e-commerce
+# 🛒 Carrinhos de Compra API
 
-## Nossas expectativas
+API REST desenvolvida em **Ruby on Rails** como solução para um desafio técnico de e-commerce. A aplicação implementa o gerenciamento de carrinhos de compras, permitindo adicionar, listar, atualizar e remover produtos, além de realizar o gerenciamento automático de carrinhos abandonados utilizando processamento assíncrono com **Sidekiq**.
 
-A equipe de engenharia da RD Station tem alguns princípios nos quais baseamos nosso trabalho diário. Um deles é: projete seu código para ser mais fácil de entender, não mais fácil de escrever.
+O projeto foi desenvolvido seguindo boas práticas do ecossistema Rails, priorizando código limpo, separação de responsabilidades, testes automatizados e uma arquitetura de fácil manutenção.
 
-Portanto, para nós, é mais importante um código de fácil leitura do que um que utilize recursos complexos e/ou desnecessários.
+---
 
-O que gostaríamos de ver:
+# 🚀 Funcionalidades
 
-- O código deve ser fácil de ler. Clean Code pode te ajudar.
-- Notas gerais e informações sobre a versão da linguagem e outras informações importantes para executar seu código.
-- Código que se preocupa com a performance (complexidade de algoritmo).
-- O seu código deve cobrir todos os casos de uso presentes no README, mesmo que não haja um teste implementado para tal.
-- A adição de novos testes é sempre bem-vinda.
-- Você deve enviar para nós o link do repositório público com a aplicação desenvolvida (GitHub, BitBucket, etc.).
+- ✅ Registrar produtos no carrinho
+- ✅ Listar produtos do carrinho
+- ✅ Atualizar quantidade de produtos
+- ✅ Remover produtos do carrinho
+- ✅ Atualização automática do valor total do carrinho
+- ✅ Controle automático de carrinhos abandonados
+- ✅ Exclusão automática de carrinhos expirados
+- ✅ Processamento assíncrono utilizando Sidekiq
+- ✅ Testes automatizados com RSpec
+- ✅ Ambiente totalmente containerizado com Docker
 
-## O Desafio - Carrinho de compras
-O desafio consiste em uma API para gerenciamento do um carrinho de compras de e-commerce.
+---
 
-Você deve desenvolver utilizando a linguagem Ruby e framework Rails, uma API Rest que terá 3 endpoins que deverão implementar as seguintes funcionalidades:
+# 🛠 Tecnologias
 
-### 1. Registrar um produto no carrinho
-Criar um endpoint para inserção de produtos no carrinho.
+| Tecnologia | Versão |
+|------------|---------|
+| Ruby | 3.3.1 |
+| Ruby on Rails | 7.1.3 |
+| PostgreSQL | 16 |
+| Redis | 7 |
+| Sidekiq | Latest |
+| RSpec | Latest |
+| Docker | Latest |
 
-Se não existir um carrinho para a sessão, criar o carrinho e salvar o ID do carrinho na sessão.
+---
 
-Adicionar o produto no carrinho e devolver o payload com a lista de produtos do carrinho atual.
+# 🏗 Arquitetura
 
+O projeto foi desenvolvido seguindo boas práticas de desenvolvimento e organização de código.
 
-ROTA: `/cart`
-Payload:
-```js
-{
-  "product_id": 345, // id do produto sendo adicionado
-  "quantity": 2, // quantidade de produto a ser adicionado
-}
-```
+### Principais características
 
-Response
-```js
-{
-  "id": 789, // id do carrinho
-  "products": [
-    {
-      "id": 645,
-      "name": "Nome do produto",
-      "quantity": 2,
-      "unit_price": 1.99, // valor unitário do produto
-      "total_price": 3.98, // valor total do produto
-    },
-    {
-      "id": 646,
-      "name": "Nome do produto 2",
-      "quantity": 2,
-      "unit_price": 1.99,
-      "total_price": 3.98,
-    },
-  ],
-  "total_price": 7.96 // valor total no carrinho
-}
-```
+- Arquitetura MVC
+- Controllers responsáveis apenas pelo fluxo das requisições
+- Services para centralizar regras de negócio
+- Jobs assíncronos utilizando Sidekiq
+- Redis como backend das filas
+- PostgreSQL para persistência dos dados
+- Testes automatizados utilizando RSpec
+- Docker para padronização do ambiente
 
-### 2. Listar itens do carrinho atual
-Criar um endpoint para listar os produtos no carrinho atual.
+---
 
-ROTA: `/cart`
+# 🚀 Executando o projeto
 
-Response:
-```js
-{
-  "id": 789, // id do carrinho
-  "products": [
-    {
-      "id": 645,
-      "name": "Nome do produto",
-      "quantity": 2,
-      "unit_price": 1.99, // valor unitário do produto
-      "total_price": 3.98, // valor total do produto
-    },
-    {
-      "id": 646,
-      "name": "Nome do produto 2",
-      "quantity": 2,
-      "unit_price": 1.99,
-      "total_price": 3.98,
-    },
-  ],
-  "total_price": 7.96 // valor total no carrinho
-}
-```
+## Clone o repositório
 
-### 3. Alterar a quantidade de produtos no carrinho 
-Um carrinho pode ter _N_ produtos, se o produto já existir no carrinho, apenas a quantidade dele deve ser alterada
-
-ROTA: `/cart/add_item`
-
-Payload
-```json
-{
-  "product_id": 1230,
-  "quantity": 1
-}
-```
-Response:
-```json
-{
-  "id": 1,
-  "products": [
-    {
-      "id": 1230,
-      "name": "Nome do produto X",
-      "quantity": 2, // considerando que esse produto já estava no carrinho
-      "unit_price": 7.00, 
-      "total_price": 14.00, 
-    },
-    {
-      "id": 01020,
-      "name": "Nome do produto Y",
-      "quantity": 1,
-      "unit_price": 9.90, 
-      "total_price": 9.90, 
-    },
-  ],
-  "total_price": 23.9
-}
-```
-
-### 3. Remover um produto do carrinho 
-
-Criar um endpoint para excluir um produto do do carrinho. 
-
-ROTA: `/cart/:product_id`
-
-
-#### Detalhes adicionais:
-
-- Verifique se o produto existe no carrinho antes de tentar removê-lo.
-- Se o produto não estiver no carrinho, retorne uma mensagem de erro apropriada.
-- Após remover o produto, retorne o payload com a lista atualizada de produtos no carrinho.
-- Certifique-se de que o endpoint lida corretamente com casos em que o carrinho está vazio após a remoção do produto.
-
-### 5. Excluir carrinhos abandonados
-Um carrinho é considerado abandonado quando estiver sem interação (adição ou remoção de produtos) há mais de 3 horas.
-
-- Quando este cenário ocorrer, o carrinho deve ser marcado como abandonado.
-- Se o carrinho estiver abandonado há mais de 7 dias, remover o carrinho.
-- Utilize um Job para gerenciar (marcar como abandonado e remover) carrinhos sem interação.
-- Configure a aplicação para executar este Job nos períodos especificados acima.
-
-### Detalhes adicionais:
-- O Job deve ser executado regularmente para verificar e marcar carrinhos como abandonados após 3 horas de inatividade.
-- O Job também deve verificar periodicamente e excluir carrinhos que foram marcados como abandonados por mais de 7 dias.
-
-### Como resolver
-
-#### Implementação
-Você deve usar como base o código disponível nesse repositório e expandi-lo para que atenda as funcionalidade descritas acima.
-
-Há trechos parcialmente implementados e também sugestões de locais para algumas das funcionalidades sinalizados com um `# TODO`. Você pode segui-los ou fazer da maneira que julgar ser a melhor a ser feita, desde que atenda os contratos de API e funcionalidades descritas.
-
-#### Testes
-Existem testes pendentes, eles estão marcados como <span style="color:green;">Pending</span>, e devem ser implementados para garantir a cobertura dos trechos de código implementados por você.
-Alguns testes já estão passando e outros estão com erro. Com a sua implementação os testes com erro devem passar a funcionar. 
-A adição de novos testes é sempre bem-vinda, mas sem alterar os já implementados.
-
-
-### O que esperamos
-- Implementação dos testes faltantes e de novos testes para os métodos/serviços/entidades criados
-- Construção das 4 rotas solicitadas
-- Implementação de um job para controle dos carrinhos abandonados
-
-
-### Itens adicionais / Legais de ter
-- Utilização de factory na construção dos testes
-- Desenvolvimento do docker-compose / dockerização da app
-
-A aplicação já possui um Dockerfile, que define como a aplicação deve ser configurada dentro de um contêiner Docker. No entanto, para completar a dockerização da aplicação, é necessário criar um arquivo `docker-compose.yml`. O arquivo irá definir como os vários serviços da aplicação (por exemplo, aplicação web, banco de dados, etc.) interagem e se comunicam.
-
-- Adicione tratamento de erros para situações excepcionais válidas, por exemplo: garantir que um produto não possa ter quantidade negativa. 
-
-- Se desejar você pode adicionar a configuração faltante no arquivo `docker-compose.yml` e garantir que a aplicação rode de forma correta utilizando Docker. 
-
-## Informações técnicas
-
-### Dependências
-- ruby 3.3.1
-- rails 7.1.3.2
-- postgres 16
-- redis 7.0.15
-
-### Como executar o projeto
-
-## Executando a app sem o docker
-Dado que todas as as ferramentas estão instaladas e configuradas:
-
-Instalar as dependências do:
 ```bash
-bundle install
+git clone git@github.com:RafaellMacedo/Carrinhos-de-Compra.git
+
+cd Carrinhos-de-Compra
 ```
 
-Executar o sidekiq:
+## Suba os containers
+
 ```bash
-bundle exec sidekiq
+docker compose build
+
+docker compose up
 ```
 
-Executar projeto:
+## Acesse o container da aplicação
+
 ```bash
-bundle exec rails server
+docker compose exec web bash
 ```
 
-Executar os testes:
+## Configure o banco de dados
+
 ```bash
-bundle exec rspec
+bundle exec rails db:create
+
+bundle exec rails db:migrate
+
+bundle exec rails db:seed
 ```
 
-### Como enviar seu projeto
-Salve seu código em um versionador de código (GitHub, GitLab, Bitbucket) e nos envie o link publico. Se achar necessário, informe no README as instruções para execução ou qualquer outra informação relevante para correção/entendimento da sua solução.
-=======
-# Carrinhos-de-Compra
-Desafio Técnico Backend
-
-### Desenvolvimento da API
-O desenvolvimento foi feito por etapas, criando issues no repositório e trabalhando em branches específicas:
-
-| Issue                                           | Pull Request                                                          |
-| ----------------------------------------------- | --------------------------------------------------------------------- |
-| Criar projeto Ruby on Rails                     | [#1](https://github.com/RafaellMacedo/Carrinhos-de-Compra/issues/1)   |
-| 1. Registrar um produto no carrinho             | [#2](https://github.com/RafaellMacedo/Carrinhos-de-Compra/issues/2)   |
-| 2. Listar itens do carrinho atual               | [#5](https://github.com/RafaellMacedo/Carrinhos-de-Compra/issues/5)   |
-| 3. Alterar a quantidade de produtos no carrinho | [#7](https://github.com/RafaellMacedo/Carrinhos-de-Compra/issues/7)   |
-| 4. Remover um produto do carrinho               | [#8](https://github.com/RafaellMacedo/Carrinhos-de-Compra/issues/8)   |
-| 5. Excluir carrinhos abandonados                | [#9](https://github.com/RafaellMacedo/Carrinhos-de-Compra/issues/9)   |
-| Corrigir Testes já existente no projeto         | [#12](https://github.com/RafaellMacedo/Carrinhos-de-Compra/issues/12) |
-
-Acessar o sidekiq local
+A API estará disponível em:
 
 ```
-http://localhost:3000/sidekiq/
+http://localhost:3000
 ```
 
-Rode a seed
+---
 
+# 🧪 Executando os testes
+
+Criar o banco de testes:
+
+```bash
+RAILS_ENV=test bundle exec rails db:create
+
+RAILS_ENV=test bundle exec rails db:migrate
 ```
-bundle exec bin/rails db:seed
-```
 
-Rodar os testes`
->Como o projeto não seta automaticamente o banco de teste, rode:
+Executar todos os testes:
 
-```
-RAILS_ENV=test bundle exec bin/rails db:create
-
+```bash
 RAILS_ENV=test bundle exec rspec
-
-RAILS_ENV=test bundle exec rspec spec/requests/carts_spec.rb
 ```
 
-> Criando um job
+Executar apenas os testes da API:
 
-```
-bin/rails generate job AbandonedCarts
+```bash
+bundle exec rspec spec/requests/carts_spec.rb
 ```
 
-> Verificar Sidekiq esta rodando
+---
 
-```
+# ⚙ Processamento Assíncrono
+
+O projeto utiliza **Sidekiq** juntamente com **Redis** para executar tarefas em background.
+
+Iniciar o Sidekiq:
+
+```bash
 bundle exec sidekiq
 ```
 
-> Verifica processos do Sidekiq
+Painel administrativo:
 
 ```
-ps aux | grep sidekiq
+http://localhost:3000/sidekiq
 ```
+
+---
+
+# 🔄 Gerenciamento de Carrinhos Abandonados
+
+Foi implementado um processo automático para gerenciamento dos carrinhos sem atividade.
+
+### Regras implementadas
+
+- Após **3 horas** sem interação, o carrinho é marcado como **abandonado**.
+- Após permanecer abandonado por **7 dias**, o carrinho é removido automaticamente.
+- O monitoramento é realizado por meio de **Jobs periódicos** executados pelo Sidekiq.
+
+Essa estratégia permite que o processamento ocorra em background, mantendo as requisições da API rápidas e favorecendo a escalabilidade da aplicação.
+
+---
+
+# 📚 Endpoints
+
+| Método | Endpoint | Descrição |
+|---------|----------|-----------|
+| POST | `/cart` | Adiciona um produto ao carrinho |
+| GET | `/cart` | Lista os produtos do carrinho atual |
+| PUT | `/cart/add_item` | Atualiza a quantidade de um produto |
+| DELETE | `/cart/:product_id` | Remove um produto do carrinho |
+
+---
+
+# 📂 Fluxo de Desenvolvimento
+
+O desenvolvimento foi realizado utilizando **GitHub Issues** e **Pull Requests**, permitindo organizar e documentar cada etapa da implementação.
+
+| Funcionalidade | Issue |
+|----------------|-------|
+| Estrutura inicial do projeto | #1 |
+| Registrar produto no carrinho | #2 |
+| Listar carrinho | #5 |
+| Atualizar quantidade | #7 |
+| Remover produto | #8 |
+| Controle de carrinhos abandonados | #9 |
+| Correção dos testes existentes | #12 |
+
+---
+
+# 📈 Melhorias Implementadas
+
+Além dos requisitos propostos no desafio técnico, foram implementadas melhorias para tornar a aplicação mais robusta e preparada para cenários reais.
+
+- Tratamento de erros para requisições inválidas
+- Validação de quantidade negativa
+- Testes automatizados
+- Docker Compose para execução da aplicação
+- Seeds para popular o banco de dados
+- Organização das regras de negócio em Services
+- Processamento assíncrono utilizando Sidekiq
+
+---
+
+# 📁 Estrutura do Projeto
+
+```text
+app/
+├── controllers/
+├── jobs/
+├── models/
+├── services/
+└── views/
+
+config/
+db/
+spec/
+
+Dockerfile
+docker-compose.yml
+```
+
+---
+
+# 👨‍💻 Autor
+
+**Rafael Macedo**
+
+Senior Full Stack Developer
+
+**Especialidades**
+
+- Java
+- Ruby on Rails
+- PHP
+- React
+- Vue.js
+- PostgreSQL
+- Redis
+- Docker
+
+GitHub: **https://github.com/RafaellMacedo**
